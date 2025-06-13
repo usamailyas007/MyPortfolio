@@ -1,4 +1,5 @@
 class Images {
+
   static const menu = "assets/images/menu.png";
   static const myPic = "assets/images/my.png";
   static const arrow = "assets/images/arrow.png";
@@ -33,4 +34,9 @@ class Images {
   static const portfolio = "assets/images/portfolio.png";
   static const skills = "assets/images/skills.png";
   static const logo = "assets/images/logo.png";
+  static const alajeeConnect = "assets/images/alajee.png";
+  static const oga = "assets/images/oga.png";
+  static const libas = "assets/images/libas.png";
+  static const mobileApp = "assets/images/mobile_app.png";
+
 }

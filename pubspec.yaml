@@ -49,7 +49,7 @@ dependencies:
   flutter_animate: ^4.3.0
   visibility_detector: ^0.4.0
   mailer: ^6.0.1
-  http: ^0.13.6
+#  http: ^0.13.6
 
 dev_dependencies:
   flutter_test:

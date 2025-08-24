@@ -14,7 +14,7 @@ import 'package:portfolio/utilities/custom_textfield.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:open_file_mac/open_file_mac.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 import 'animate_on_visible.dart';
 import 'images.dart';
 import 'dart:convert';
@@ -63,45 +63,45 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
-  Future<void> sendEmailWithEmailJS({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phone,
-    required String message,
-  }) async {
-    const serviceId = 'service_oagzr6s';
-    const templateId = 'your_template_id';
-    const publicKey = 'your_public_key';
-
-    final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
-
-    final response = await http.post(
-      url,
-      headers: {
-        'origin': 'http://localhost',
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'service_id': serviceId,
-        'template_id': templateId,
-        'user_id': publicKey,
-        'template_params': {
-          'from_firstname': firstName,
-          'from_lastname': lastName,
-          'from_email': email,
-          'from_phone': phone,
-          'message': message,
-        }
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      print('✅ Email sent successfully');
-    } else {
-      print('❌ Failed to send email: ${response.body}');
-    }
-  }
+  // Future<void> sendEmailWithEmailJS({
+  //   required String firstName,
+  //   required String lastName,
+  //   required String email,
+  //   required String phone,
+  //   required String message,
+  // }) async {
+  //   const serviceId = 'service_oagzr6s';
+  //   const templateId = 'your_template_id';
+  //   const publicKey = 'your_public_key';
+  //
+  //   final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
+  //
+  //   final response = await http.post(
+  //     url,
+  //     headers: {
+  //       'origin': 'http://localhost',
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: json.encode({
+  //       'service_id': serviceId,
+  //       'template_id': templateId,
+  //       'user_id': publicKey,
+  //       'template_params': {
+  //         'from_firstname': firstName,
+  //         'from_lastname': lastName,
+  //         'from_email': email,
+  //         'from_phone': phone,
+  //         'message': message,
+  //       }
+  //     }),
+  //   );
+  //
+  //   if (response.statusCode == 200) {
+  //     print('✅ Email sent successfully');
+  //   } else {
+  //     print('❌ Failed to send email: ${response.body}');
+  //   }
+  // }
 
   Future<void> _openUrl(String url) async {
     if (await canLaunch(url)) {

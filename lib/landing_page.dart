@@ -268,7 +268,7 @@ class _LandingPageState extends State<LandingPage> {
                                 style: GoogleFonts.onest(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: greyColor),
+                                    color: backgroundColor),
                               ),
                             ),
                           )
@@ -735,18 +735,18 @@ class _LandingPageState extends State<LandingPage> {
                                           Expanded(
                                             child: Container(
                                               height: 150,
-                                              decoration: const BoxDecoration(
+                                              decoration: BoxDecoration(
                                                   gradient: LinearGradient(
                                                     colors: [
                                                       // Color(0xffeee5fe),
-                                                      Color(0xffe9ebfe),
-                                                      Color(0xffe9ebfe),
+                                                      primaryColor.withOpacity(0.3),
+                                                      primaryColor.withOpacity(0.3),
                                                     ],
                                                     begin: Alignment.topLeft,
                                                     end: Alignment.bottomRight,
                                                   ),
                                                   borderRadius:
-                                                      BorderRadius.only(
+                                                      const BorderRadius.only(
                                                           bottomLeft:
                                                               Radius.circular(
                                                                   24),
@@ -762,18 +762,18 @@ class _LandingPageState extends State<LandingPage> {
                                             flex: 5,
                                             child: Container(
                                               height: 150,
-                                              decoration: const BoxDecoration(
+                                              decoration: BoxDecoration(
                                                   gradient: LinearGradient(
                                                     colors: [
                                                       // Color(0xfff3dfff),
-                                                      Color(0xffe9ebfe),
-                                                      Color(0xffe9ebfe),
+                                                      primaryColor.withOpacity(0.3),
+                                                      primaryColor.withOpacity(0.3),
                                                     ],
                                                     begin: Alignment.topLeft,
                                                     end: Alignment.bottomRight,
                                                   ),
                                                   borderRadius:
-                                                      BorderRadius.only(
+                                                      const BorderRadius.only(
                                                           bottomLeft:
                                                               Radius.circular(
                                                                   24),
@@ -786,16 +786,16 @@ class _LandingPageState extends State<LandingPage> {
                                       ),
                                       Container(
                                         height: 150,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
                                             gradient: LinearGradient(
                                               colors: [
                                                 // Color(0xffeee5fe),
-                                                Color(0xffe9ebfe),
-                                                Color(0xffe9ebfe),                                              ],
+                                                primaryColor.withOpacity(0.3),
+                                                primaryColor.withOpacity(0.3),                                             ],
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                             ),
-                                            borderRadius: BorderRadius.only(
+                                            borderRadius: const BorderRadius.only(
                                                 bottomLeft: Radius.circular(24),
                                                 topRight: Radius.circular(24))),
                                       ),
@@ -838,7 +838,7 @@ class _LandingPageState extends State<LandingPage> {
                             height: 60,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(100),
-                              color: const Color(0xffeee5fe),
+                              color: primaryColor.withOpacity(0.3),
                             ),
                             width: isTablet ? width / 4 : width / 1.5,
                             child: Padding(
@@ -1043,9 +1043,9 @@ class _LandingPageState extends State<LandingPage> {
               AnimateOnVisible(
                 key: const Key('about_me_visibility'),
                 child: Container(
-                  height: isTablet ? 800 : null,
+                  height: isTablet ? 700 : null,
                   key: aboutMeKey,
-                  color: const Color(0xffe8edfe),
+                  color: primaryColor.withOpacity(0.3),
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: mainP, vertical: 20),
                     child: ResponsiveRowColumn(
@@ -1062,8 +1062,10 @@ class _LandingPageState extends State<LandingPage> {
                                 width: isTablet ? 300 : 200,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(150),
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xffd1c2fd), Color(0xffc1d5fb)],
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      primaryColor.withOpacity(0.6),
+                                      primaryColor.withOpacity(0.6)],
                                     begin: Alignment.centerLeft,
                                     end: Alignment.centerRight,
                                   ),
@@ -1275,7 +1277,7 @@ class _LandingPageState extends State<LandingPage> {
                 child: Container(
                   width: width,
                   height: isTablet ? 600 : null,
-                  color: const Color(0xffe8edfe),
+                  color: primaryColor.withOpacity(0.3),
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: mainP, vertical: 20),
                     child: Column(
@@ -1457,7 +1459,7 @@ class _LandingPageState extends State<LandingPage> {
                 key: const Key('education_visibility'),
                 child: Container(
                   width: width,
-                  color: const Color(0xffe8edfe),
+                  color: primaryColor.withOpacity(0.3),
                   child: Column(
                     children: [
                       const SizedBox(height: 35),

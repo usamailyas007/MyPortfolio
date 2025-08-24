@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server/gmail.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:portfolio/sidemenu.dart';
 import 'package:portfolio/theme.dart';
@@ -11,8 +14,10 @@ import 'package:portfolio/utilities/custom_textfield.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:open_file_mac/open_file_mac.dart';
-
+import 'package:http/http.dart' as http;
+import 'animate_on_visible.dart';
 import 'images.dart';
+import 'dart:convert';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -28,6 +33,7 @@ class _LandingPageState extends State<LandingPage> {
   PhoneNumber number = PhoneNumber(isoCode: "PK", dialCode: "");
   PhoneNumber phoneNumber = PhoneNumber();
   final ScrollController _scrollController = ScrollController();
+  bool _aboutMeVisible = false; // At the top of your stateful widget
 
   // bool isHovered = false;
   static const String linkedinUrl =
@@ -44,12 +50,56 @@ class _LandingPageState extends State<LandingPage> {
   final GlobalKey contactKey = GlobalKey();
   final GlobalKey homeKey = GlobalKey();
   final GlobalKey skillKey = GlobalKey();
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController messageController = TextEditingController();
 
   void _scrollToSection(GlobalKey key) {
     final context = key.currentContext;
     if (context != null) {
       Scrollable.ensureVisible(context,
           duration: const Duration(seconds: 1), curve: Curves.easeInOut);
+    }
+  }
+
+  Future<void> sendEmailWithEmailJS({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String phone,
+    required String message,
+  }) async {
+    const serviceId = 'service_oagzr6s';
+    const templateId = 'your_template_id';
+    const publicKey = 'your_public_key';
+
+    final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'origin': 'http://localhost',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'service_id': serviceId,
+        'template_id': templateId,
+        'user_id': publicKey,
+        'template_params': {
+          'from_firstname': firstName,
+          'from_lastname': lastName,
+          'from_email': email,
+          'from_phone': phone,
+          'message': message,
+        }
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('✅ Email sent successfully');
+    } else {
+      print('❌ Failed to send email: ${response.body}');
     }
   }
 
@@ -101,7 +151,7 @@ class _LandingPageState extends State<LandingPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 35,
+        height: 45,
         width: width,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(mainP),
@@ -419,10 +469,13 @@ class _LandingPageState extends State<LandingPage> {
                 children: [
                   Row(
                     children: [
-                      Image.asset(
-                        Images.logo,
-                        height: 45,
-                        width: 45,
+                      Padding(
+                        padding: EdgeInsets.only(left: isTablet ? 80 : 0),
+                        child: Image.asset(
+                          Images.logo,
+                          height: 45,
+                          width: 45,
+                        ),
                       ),
                       SizedBox(width: mainP),
                       Text(
@@ -577,7 +630,7 @@ class _LandingPageState extends State<LandingPage> {
                 )
         ],
       ),
-      drawer: SideMenu(
+      drawer: isTablet ? null : SideMenu(
           onMenuTap: _scrollToSection,
           aboutMeKey: aboutMeKey,
           homeKey: homeKey,
@@ -644,7 +697,7 @@ class _LandingPageState extends State<LandingPage> {
                                     height: mainP,
                                   ),
                                   Text(
-                                    "Hi! I'm a skilled Flutter developer with over 2.5 year of "
+                                    "Hi! I'm a skilled Flutter developer with over 3.5 years of "
                                     "experience in creating robust mobile apps for Android and iOS."
                                     " Eager to contribute my expertise to impactful projects and collaborate with a forward-thinking"
                                     " team to build cutting-edge apps that enhance user experience.",
@@ -656,7 +709,7 @@ class _LandingPageState extends State<LandingPage> {
                                         color: darkColor),
                                   ),
                                 ],
-                              ),
+                              ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.2),
                             ),
                           ),
                           ResponsiveRowColumnItem(
@@ -767,7 +820,7 @@ class _LandingPageState extends State<LandingPage> {
                                     ],
                                   ),
                                 ],
-                              ),
+                              ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.2),
                             ),
                           ),
                         ],
@@ -834,8 +887,8 @@ class _LandingPageState extends State<LandingPage> {
                                   ),
                                   MouseRegion(
                                     cursor: SystemMouseCursors.click,
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(100),
+                                    child: Padding(
+                                      padding: EdgeInsets.only(right: isTablet ? 17 : 0),
                                       child: TextButton(
                                         onPressed: () {
                                           _scrollToSection(contactKey);
@@ -854,7 +907,7 @@ class _LandingPageState extends State<LandingPage> {
                                   )
                                 ],
                               ),
-                            ),
+                            ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.2),
                           )),
                           ResponsiveRowColumnItem(
                             child: isTablet
@@ -903,7 +956,7 @@ class _LandingPageState extends State<LandingPage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              '10+',
+                                              '15+',
                                               style: GoogleFonts.onest(
                                                   color: primaryColor,
                                                   fontWeight: FontWeight.w700,
@@ -929,7 +982,7 @@ class _LandingPageState extends State<LandingPage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              '4',
+                                              '5',
                                               style: GoogleFonts.onest(
                                                   color: primaryColor,
                                                   fontWeight: FontWeight.w700,
@@ -956,7 +1009,7 @@ class _LandingPageState extends State<LandingPage> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '2.5+',
+                                          '3.5+',
                                           style: GoogleFonts.onest(
                                               color: primaryColor,
                                               fontWeight: FontWeight.w700,
@@ -983,114 +1036,107 @@ class _LandingPageState extends State<LandingPage> {
                           ),
                         ],
                       ),
-                    ],
+                    ].animate().fadeIn(duration: 500.ms).slideY(begin: 0.2),
                   ),
                 ),
               ),
-              Container(
-                height: isTablet ? 800 : null,
-                key: aboutMeKey,
-                color: const Color(0xffe8edfe),
-                child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: mainP, vertical: 20),
-                  child: ResponsiveRowColumn(
-                    layout: isTablet
-                        ? ResponsiveRowColumnType.ROW
-                        : ResponsiveRowColumnType.COLUMN,
-                    children: [
-                      ResponsiveRowColumnItem(
-                        child: SizedBox(
-                          width: isTablet ? width / 2.7 : width,
-                          child: Center(
-                            child: Container(
-                              height: isTablet ? 300 : 200,
-                              width: isTablet ? 300 : 200,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(150),
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xffd1c2fd),
-                                    Color(0xffc1d5fb)
-                                  ],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
+              AnimateOnVisible(
+                key: const Key('about_me_visibility'),
+                child: Container(
+                  height: isTablet ? 800 : null,
+                  key: aboutMeKey,
+                  color: const Color(0xffe8edfe),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: mainP, vertical: 20),
+                    child: ResponsiveRowColumn(
+                      layout: isTablet
+                          ? ResponsiveRowColumnType.ROW
+                          : ResponsiveRowColumnType.COLUMN,
+                      children: [
+                        ResponsiveRowColumnItem(
+                          child: SizedBox(
+                            width: isTablet ? width / 2.7 : width,
+                            child: Center(
+                              child: Container(
+                                height: isTablet ? 300 : 200,
+                                width: isTablet ? 300 : 200,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(150),
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xffd1c2fd), Color(0xffc1d5fb)],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  ),
                                 ),
-                              ),
-                              child: ClipRRect(
+                                child: ClipRRect(
                                   borderRadius: BorderRadius.circular(150),
                                   child: Image.asset(
                                     Images.myPic,
                                     fit: BoxFit.contain,
-                                  )),
+                                  ),
+                                ),
+                              ).animate()
+                                  .fadeIn(duration: 500.ms)
+                                  .slideX(begin: -0.2),
                             ),
                           ),
                         ),
-                      ),
-                      ResponsiveRowColumnItem(
-                        child: isTablet ? const Spacer() : const SizedBox(),
-                      ),
-                      ResponsiveRowColumnItem(
-                        child: SizedBox(
-                          width: isTablet ? width / 2 : width,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height: mainP,
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    "About Me",
-                                    style: GoogleFonts.onest(
+                        ResponsiveRowColumnItem(
+                          child: isTablet ? const Spacer() : const SizedBox(),
+                        ),
+                        ResponsiveRowColumnItem(
+                          child: SizedBox(
+                            width: isTablet ? width / 2 : width,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(height: mainP),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "About Me",
+                                      style: GoogleFonts.onest(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w700,
-                                        color: grey),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: mainP,
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    "Why Did You Choose Me?",
-                                    style: GoogleFonts.onest(
+                                        color: grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: mainP),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Why Did You Choose Me?",
+                                      style: GoogleFonts.onest(
                                         fontSize: 24,
                                         fontWeight: FontWeight.w700,
-                                        color: darkColor),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 16,
-                              ),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      "I am a skilled Flutter developer with 2.5 years of experience, specializing in creating user-friendly and highperformance mobile applications. Proficient in Dart and passionate about delivering innovative solutions, I thrive in"
-                                      "dynamic environments. Eager to contribute my expertise to impactful projects and collaborate with a forward-thinking"
-                                      "team to build cutting-edge apps that enhance user experience.",
-                                      style: GoogleFonts.onest(
-                                          fontSize: isTablet ? 20 : 14,
-                                          fontWeight: isTablet
-                                              ? FontWeight.w300
-                                              : FontWeight.w500,
-                                          color: grey),
+                                        color: darkColor,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 16,
-                              ),
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: CustomButton(
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        "I am a skilled Flutter developer with 3.5 years of experience, specializing in creating user-friendly and high-performance mobile applications. Proficient in Dart and passionate about delivering innovative solutions, I thrive in dynamic environments. Eager to contribute my expertise to impactful projects and collaborate with a forward-thinking team to build cutting-edge apps that enhance user experience.",
+                                        style: GoogleFonts.onest(
+                                          fontSize: isTablet ? 20 : 14,
+                                          fontWeight:
+                                          isTablet ? FontWeight.w300 : FontWeight.w500,
+                                          color: grey,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: CustomButton(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
                                     text: "Download CV",
@@ -1098,670 +1144,604 @@ class _LandingPageState extends State<LandingPage> {
                                     textColor: backgroundColor,
                                     height: 50,
                                     backgroundColor: primaryColor,
-                                    onTap: () => _downloadAndOpenCV()),
-                              ),
-                              const SizedBox(
-                                height: 16,
-                              ),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Wrap(
-                                  spacing: p,
-                                  runSpacing: p,
-                                  children: [
-                                    MouseRegion(
-                                      cursor: SystemMouseCursors.click,
-                                      child: platformButton(
+                                    onTap: () => _downloadAndOpenCV(),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Wrap(
+                                    spacing: p,
+                                    runSpacing: p,
+                                    children: [
+                                      MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: platformButton(
                                           Images.linkedin,
                                           const Color(0xff1976d2),
                                           "Linkedin",
                                           isTablet ? width / 6 : width / 3,
                                           backgroundColor,
-                                          () => _openUrl(linkedinUrl)),
-                                    ),
-                                    MouseRegion(
-                                      cursor: SystemMouseCursors.click,
-                                      child: platformButton(
+                                              () => _openUrl(linkedinUrl),
+                                        ),
+                                      ),
+                                      MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: platformButton(
                                           Images.github,
                                           lightGrey,
                                           "Github",
                                           isTablet ? width / 8 : width / 3.5,
                                           darkColor,
-                                          () => _openUrl(githubUrl)),
-                                    ),
-                                    MouseRegion(
-                                      cursor: SystemMouseCursors.click,
-                                      child: platformButton(
+                                              () => _openUrl(githubUrl),
+                                        ),
+                                      ),
+                                      MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: platformButton(
                                           Images.wp,
                                           const Color(0xff388e3c),
                                           "WhatsApp",
                                           isTablet ? width / 6 : width / 2.8,
                                           backgroundColor,
-                                          () => _openUrl(whatsappUrl)),
-                                    ),
-                                  ],
+                                              () => _openUrl(whatsappUrl),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ).animate()
+                                .fadeIn(duration: 500.ms)
+                                .slideX(begin: 0.2),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-              Container(
-                key: servicesKey,
-                width: width,
-                color: Colors.black,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: isTablet ? 80 : mainP, vertical: 25),
-                  child: Column(
-                    children: [
-                      Text(
-                        "Services",
-                        style: GoogleFonts.onest(
-                            fontSize: isTablet ? 22 : 18,
-                            fontWeight: FontWeight.w700,
-                            color: greyColor),
-                      ),
-                      SizedBox(height: mainP),
-                      Text(
-                        "My Quality Services",
-                        style: GoogleFonts.onest(
-                            fontSize: isTablet ? 30 : 24,
-                            fontWeight: FontWeight.w700,
-                            color: backgroundColor),
-                      ),
-                      SizedBox(height: isTablet ? 45 : 35),
-                      // MouseRegion(
-                      //   onEnter: (_) => _onHover(true),
-                      //   onExit: (_) => _onHover(false),
-                      //   child: serviceContainer(
-                      //       Images.mobile,
-                      //       "Mobile App development",
-                      //       "I specialize in building cross-platform mobile applications "
-                      //           "using Flutter,delivering smooth and efficient apps"
-                      //           " for both IOS and android with single codebase.",
-                      //       (){}),
-                      // ),
-                      // SizedBox(height: mainP),
-                      // serviceContainer(
-                      //     Images.project,
-                      //     "Custom User Interface Design",
-                      //     "I design intuitive, user friendly interfaces tailored to meet user's specific needs,"
-                      //         "ensuring an engaging experience with maintaining"
-                      //         "brand consistency",
-                      //         (){}),
-                      // SizedBox(height: mainP),
-                      // serviceContainer(
-                      //     Images.apis,
-                      //     "API Integration (REST APIs)",
-                      //     "I integrate robust apis into mobile app, including Google Maps,"
-                      //         "Pusher and other third-party services to extend functionality and provide seamless data communication",
-                      //         (){}),
-                      // SizedBox(height: mainP),
-                      // serviceContainer(
-                      //     Images.firebase,
-                      //     "Firebase & Real-Time Database Integration",
-                      //     "From user authentication to real-time data syncing, I offer complete Firebase Integration to smooth,"
-                      //         "responsive and scalable app functionality",
-                      //         (){}),
-                      // SizedBox(height: mainP),
-                      // serviceContainer(
-                      //   Images.node,
-                      //   "Node.js Backend Development",
-                      //   "Specializing in efficient API development and server-side logic, "
-                      //       "I build robust, scalable backends with Node.js, ensuring seamless data flow and secure communication.",
-                      //       () {},
-                      // ),
-                      // SizedBox(height: mainP),
-                      // serviceContainer(
-                      //   Images.sql,
-                      //   "MySQL Database Management",
-                      //   "Experienced in designing and managing relational databases with MySQL,"
-                      //       " I provide reliable data storage solutions and efficient data handling for large-scale applications.",
-                      //       () {},
-                      // ),
-                      ...List.generate(6, (index) {
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: mainP),
-                          child: MouseRegion(
-                            onEnter: (_) => _onHover(true, index),
-                            onExit: (_) => _onHover(false, index),
-                            child: serviceContainer(
-                              [
-                                Images.mobile,
-                                Images.project,
-                                Images.apis,
-                                Images.firebase,
-                                Images.node,
-                                Images.sql
-                              ][index],
-                              [
-                                "Mobile App Development",
-                                "Custom User Interface Design",
-                                "API Integration (REST APIs)",
-                                "Firebase & Real-Time Database Integration",
-                                "Node.js Backend Development",
-                                "MySQL Database Management"
-                              ][index],
-                              [
-                                "I specialize in building cross-platform mobile applications using Flutter, delivering smooth and efficient apps for both IOS and Android with a single codebase.",
-                                "I design intuitive, user-friendly interfaces tailored to meet users' specific needs, ensuring an engaging experience with brand consistency.",
-                                "I integrate robust APIs into mobile apps, including Google Maps, Pusher, and other third-party services for seamless data communication.",
-                                "From user authentication to real-time data syncing, I offer complete Firebase Integration for smooth, responsive, and scalable app functionality.",
-                                "Specializing in efficient API development and server-side logic, I build robust, scalable backends with Node.js for secure communication.",
-                                "Experienced in designing and managing relational databases with MySQL, I provide reliable data storage solutions for large-scale applications."
-                              ][index],
-                              () {},
-                              isHoveredList[index],
+              AnimateOnVisible(
+                key: const Key('services_visibility'),
+                child: Container(
+                  key: servicesKey,
+                  width: width,
+                  color: Colors.black,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: isTablet ? 80 : mainP, vertical: 25),
+                    child: Column(
+                      children: [
+                        Text(
+                          "Services",
+                          style: GoogleFonts.onest(
+                              fontSize: isTablet ? 22 : 18,
+                              fontWeight: FontWeight.w700,
+                              color: greyColor),
+                        ),
+                        SizedBox(height: mainP),
+                        Text(
+                          "My Quality Services",
+                          style: GoogleFonts.onest(
+                              fontSize: isTablet ? 30 : 24,
+                              fontWeight: FontWeight.w700,
+                              color: backgroundColor),
+                        ),
+                        SizedBox(height: isTablet ? 45 : 35),
+                        ...List.generate(6, (index) {
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: mainP),
+                            child: MouseRegion(
+                              onEnter: (_) => _onHover(true, index),
+                              onExit: (_) => _onHover(false, index),
+                              child: serviceContainer(
+                                [
+                                  Images.mobile,
+                                  Images.project,
+                                  Images.apis,
+                                  Images.firebase,
+                                  Images.node,
+                                  Images.sql
+                                ][index],
+                                [
+                                  "Mobile App Development",
+                                  "Custom User Interface Design",
+                                  "API Integration (REST APIs)",
+                                  "Firebase & Real-Time Database Integration",
+                                  "Node.js Backend Development",
+                                  "MySQL Database Management"
+                                ][index],
+                                [
+                                  "I specialize in building cross-platform mobile applications using Flutter, delivering smooth and efficient apps for both IOS and Android with a single codebase.",
+                                  "I design intuitive, user-friendly interfaces tailored to meet users' specific needs, ensuring an engaging experience with brand consistency.",
+                                  "I integrate robust APIs into mobile apps, including Google Maps, Pusher, and other third-party services for seamless data communication.",
+                                  "From user authentication to real-time data syncing, I offer complete Firebase Integration for smooth, responsive, and scalable app functionality.",
+                                  "Specializing in efficient API development and server-side logic, I build robust, scalable backends with Node.js for secure communication.",
+                                  "Experienced in designing and managing relational databases with MySQL, I provide reliable data storage solutions for large-scale applications."
+                                ][index],
+                                    () {},
+                                isHoveredList[index],
+                              ),
                             ),
-                          ),
-                        );
-                      }),
-                    ],
+                          );
+                        }),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              Container(
-                width: width,
-                height: isTablet ? 600 : null,
-                color: const Color(0xffe8edfe),
-                child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: mainP, vertical: 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "My Work Process",
-                        style: GoogleFonts.onest(
+              AnimateOnVisible(
+                key: const Key('work_process_visibility'),
+                child: Container(
+                  width: width,
+                  height: isTablet ? 600 : null,
+                  color: const Color(0xffe8edfe),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: mainP, vertical: 20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "My Work Process",
+                          style: GoogleFonts.onest(
                             fontSize: 24,
                             fontWeight: FontWeight.w700,
-                            color: darkColor),
-                      ),
-                      SizedBox(
-                        height: isTablet ? 40 : 25,
-                      ),
-                      Wrap(
-                        children: [
-                          workspaceContainer(
+                            color: darkColor,
+                          ),
+                        ),
+                        SizedBox(height: isTablet ? 40 : 25),
+                        Wrap(
+                          children: [
+                            workspaceContainer(
                               Images.research,
                               "Research and Design",
-                              "I conduct thorough research and design intuitive user experiences, focusing an accessibility and responsiveness",
-                              () {},
-                              isTablet ? 250 : width),
-                          SizedBox(
-                            height: isTablet ? 0 : mainP,
-                            width: isTablet ? mainP : 0,
-                          ),
-                          workspaceContainer(
+                              "I conduct thorough research and design intuitive user experiences, focusing on accessibility and responsiveness.",
+                                  () {},
+                              isTablet ? 250 : width,
+                            ),
+                            SizedBox(
+                              height: isTablet ? 0 : mainP,
+                              width: isTablet ? mainP : 0,
+                            ),
+                            workspaceContainer(
                               Images.development,
                               "Development",
-                              "I develop high-quality,responsive and interface mobile and web applications"
-                                  "using Flutter, ensuring optimal performance",
-                              () {},
-                              isTablet ? 250 : width),
-                          SizedBox(
-                            height: isTablet ? 0 : mainP,
-                            width: isTablet ? mainP : 0,
-                          ),
-                          workspaceContainer(
+                              "I develop high-quality, responsive, and user-friendly mobile and web applications using Flutter, ensuring optimal performance.",
+                                  () {},
+                              isTablet ? 250 : width,
+                            ),
+                            SizedBox(
+                              height: isTablet ? 0 : mainP,
+                              width: isTablet ? mainP : 0,
+                            ),
+                            workspaceContainer(
                               Images.testing,
                               "Testing",
-                              "I perform comprehensive testing to ensure functionality, usability and performance,"
-                                  " guaranteeing a smooth user interface",
-                              () {},
-                              isTablet ? 250 : width),
-                          const SizedBox(
-                            height: 30,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                key: portfolioKey,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mainP),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 30),
-                      Center(
-                        child: Text(
-                          "Portfolio",
-                          style: GoogleFonts.onest(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
-                              color: darkColor),
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      Wrap(
-                        // runSpacing: 10,
-                        spacing: isTablet ? 12 : 0,
-                        children: [
-                          projectContainer(
-                              Images.anad,
-                              "ANAD CRM",
-                              () {},
-                              'Anad CRM is a powerful app designed to help users effortlessly '
-                                  'manage and track their leads. With intuitive features, it '
-                                  'enables users to fetch leads, organize customer data, and '
-                                  'streamline communication for better sales efficiency.'
-                                  ' The app offers real-time updates, task management, and'
-                                  ' analytics to monitor lead progress.',
-                              'https://play.google.com/store/apps/details?id=com.paragon.anad.crm'),
-                          projectContainer(
-                              Images.duckin,
-                              "GO DUCKIN",
-                              () {},
-                              "Go Duckin is the ultimate platform for duck enthusiasts! Post and "
-                                  "showcase your ducks, explore unique collections, and connect with"
-                                  " a community that shares your passion. Whether you're a breeder,"
-                                  " collector, or simply a fan, Go Duckin makes it easy to track,"
-                                  " manage, and display your beloved ducks in one place.",
-                              'https://play.google.com/store/apps/details?id=com.paragon.goduckin'),
-                          projectContainer(
-                              Images.ligo,
-                              "LIGO APP",
-                              () {},
-                              "LIGO is your ultimate ride and delivery companion! Whether"
-                                  " you're booking a ride, scheduling a parcel, or transporting "
-                                  "cargo, LIGO makes it effortless. With real-time tracking, "
-                                  "smooth ride management, and easy reviews, it’s the perfect"
-                                  " solution for hassle-free transportation. Join LIGO today "
-                                  "and experience seamless travel and delivery at your fingertips!",
-                              'https://play.google.com/store/apps/details?id=com.paragon.godu'),
-                          projectContainer(
-                            Images.libas,
-                            "Libas",
-                            () {},
-                            'Libas is an e-commerce application where preloved brands sell their products. \n'
-                                'The platform connects buyers with trusted sellers of second-hand fashion items, '
-                                'promoting sustainable shopping and offering premium branded goods at affordable prices.',
-                            'https://play.google.com/store/apps/details?id=com.libas.libas&hl=en',
-                          ),
-                          projectContainer(
-                            Images.oga,
-                            "OGA",
-                            () {},
-                            'OGA is a comprehensive social media application that brings together all the core features of modern platforms. '
-                                'Users can create posts, interact through likes, comments, and shares, and connect with others seamlessly. '
-                                'From messaging to content sharing, OGA offers everything you expect in a social media experience—all in one app.',
-                            'https://apps.apple.com/us/app/oga-i-on-good-authority/id6739505173',
-                          ),
-                          projectContainer(
-                            Images.alajeeConnect,
-                            "Alajee Connect",
-                            () {},
-                            'Alajee Connect is an innovative eCommerce application that bridges the gap between service providers and customers. '
-                                'Users can browse a wide range of services, place orders, and book professionals directly through the app. '
-                                'Whether it’s home services, personal care, or professional help, Alajee Connect makes service booking simple, fast, and reliable.',
-                            'https://play.google.com/store/apps/details?id=com.alaje.alajeconnect',
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                key: skillKey,
-                width: width,
-                height: isTablet ? 650 : 0,
-                color: Colors.black,
-                child: Column(
-                  mainAxisAlignment: isTablet
-                      ? MainAxisAlignment.center
-                      : MainAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 30),
-                    Text(
-                      "My Skills",
-                      style: GoogleFonts.onest(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: backgroundColor),
-                    ),
-                    const SizedBox(height: 30),
-                    Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: isTablet ? 30 : 0),
-                      child: Wrap(
-                        runSpacing: 20,
-                        spacing: 20,
-                        children: [
-                          skillContainer(Images.flutter, "Flutter"),
-                          skillContainer(Images.dart, "Dart"),
-                          skillContainer(Images.firebase, "Firebase"),
-                          skillContainer(Images.sql, "MySQL"),
-                          skillContainer(Images.mongo, "MongoDB"),
-                          skillContainer(Images.java, "JavaScript"),
-                          skillContainer(Images.node, "Node.js"),
-                          skillContainer(Images.api, "Rest APIs"),
-                          skillContainer(Images.git, "Git"),
-                          skillContainer(Images.github, "GitHub"),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                  ],
-                ),
-              ),
-              Container(
-                width: width,
-                color: const Color(0xffe8edfe),
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      height: 35,
-                    ),
-                    Text(
-                      "Education",
-                      style: GoogleFonts.onest(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: darkColor),
-                    ),
-                    const SizedBox(
-                      height: 35,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Container(
-                        width: width,
-                        decoration: BoxDecoration(
-                          color: backgroundColor,
-                          // border: Border.all(color: greyLightColor.withOpacity(1)),
-                          borderRadius: BorderRadius.circular(mainP),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black.withOpacity(0.03),
-                                // Shadow color
-                                spreadRadius: 2,
-                                // Spread radius
-                                blurRadius: 6,
-                                // Blur radius
-                                offset: const Offset(-1, 3),
-                                blurStyle: BlurStyle
-                                    .normal // Position the shadow above the container
-                                ),
+                              "I perform comprehensive testing to ensure functionality, usability, and performance, guaranteeing a smooth user interface.",
+                                  () {},
+                              isTablet ? 250 : width,
+                            ),
+                            const SizedBox(height: 30),
                           ],
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: primaryColor.withOpacity(0.1)),
-                                height: 50,
-                                width: 50,
-                                child: Center(
-                                    child: Image.asset(
-                                  Images.education,
-                                  height: 30,
-                                  width: 30,
-                                  color: primaryColor,
-                                )),
-                              ),
-                              SizedBox(
-                                width: mainP,
-                              ),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '2020-2024',
-                                      style: GoogleFonts.onest(
-                                          fontWeight: FontWeight.w600,
-                                          color: greyColor,
-                                          fontSize: 14),
-                                    ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      'Bachelor\'s of Software Engineering',
-                                      style: GoogleFonts.onest(
-                                          fontWeight: FontWeight.w700,
-                                          color: darkColor,
-                                          fontSize: 20),
-                                    ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      'Government College University Faisalabad (GCUF)',
-                                      style: GoogleFonts.onest(
-                                          fontWeight: FontWeight.w400,
-                                          color: darkColor,
-                                          fontSize: 16),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
+                      ],
                     ),
-                    const SizedBox(
-                      height: 60,
-                    ),
-                  ],
+                  ),
                 ),
               ),
-              Container(
-                key: contactKey,
-                child: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: isTablet ? 140 : 12),
-                  child: Column(
-                    children: [
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      Center(
-                        child: Text(
-                          "Let's work together",
-                          style: GoogleFonts.onest(
+              AnimateOnVisible(
+                key: const Key('portfolio_visibility'),
+                child: Container(
+                  key: portfolioKey,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: mainP),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 30),
+                        Center(
+                          child: Text(
+                            "Portfolio",
+                            style: GoogleFonts.onest(
                               fontSize: 24,
                               fontWeight: FontWeight.w700,
-                              color: darkColor),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      MyCustomTextField(
-                        // controller: nameController,
-                        textInputType: TextInputType.text,
-                        hintText: 'eg: john',
-                        prefixIcon: Icons.person_2_outlined,
-                        borderColor: lightGrey,
-                      ),
-                      SizedBox(
-                        height: mainP,
-                      ),
-                      MyCustomTextField(
-                        // controller: nameController,
-                        textInputType: TextInputType.text,
-                        hintText: 'eg: doe',
-                        prefixIcon: Icons.person_2_outlined,
-                        borderColor: lightGrey,
-                      ),
-                      SizedBox(
-                        height: mainP,
-                      ),
-                      MyCustomTextField(
-                        // controller: nameController,
-                        textInputType: TextInputType.text,
-                        hintText: 'eg: john@gmail.com',
-                        prefixIcon: Icons.person_2_outlined,
-                        borderColor: lightGrey,
-                      ),
-                      SizedBox(
-                        height: mainP,
-                      ),
-                      Container(
-                        width: width,
-                        height: 53,
-                        decoration: BoxDecoration(
-                            color: backgroundColor,
-                            border: Border.all(color: lightGrey),
-                            borderRadius: BorderRadius.circular(12)),
-                        child: Padding(
-                          padding: EdgeInsets.only(left: p),
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(12),
-                                bottomRight: Radius.circular(12)),
-                            child: InternationalPhoneNumberInput(
-                              onInputChanged: (PhoneNumber number) {
-                                setState(() {
-                                  phoneNumber = number;
-                                });
-                              },
-                              onInputValidated: (bool value) {},
-                              selectorConfig: const SelectorConfig(
-                                selectorType:
-                                    PhoneInputSelectorType.BOTTOM_SHEET,
-                                useBottomSheetSafeArea: true,
-                              ),
-                              spaceBetweenSelectorAndTextField: 0,
-                              ignoreBlank: false,
-                              autoValidateMode: AutovalidateMode.disabled,
-                              selectorTextStyle:
-                                  const TextStyle(color: Colors.black),
-                              initialValue: number,
-                              textFieldController: mobileController,
-                              formatInput: true,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                      signed: true, decimal: true),
-                              inputBorder: InputBorder.none,
-                              inputDecoration: const InputDecoration(
-                                  focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide.none),
-                                  disabledBorder: UnderlineInputBorder(),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide.none),
-                                  hintText: "Phone Number",
-                                  border: InputBorder.none),
-                              onSaved: (PhoneNumber number) {},
+                              color: darkColor,
                             ),
                           ),
                         ),
+                        const SizedBox(height: 30),
+                        Wrap(
+                          spacing: isTablet ? 12 : 0,
+                          runSpacing: 20,
+                          children: [
+                            projectContainer(
+                              Images.anad,
+                              "ANAD CRM",
+                                  () {},
+                              'Anad CRM is a powerful app designed to help users effortlessly manage and track their leads. With intuitive features, it enables users to fetch leads, organize customer data, and streamline communication for better sales efficiency. The app offers real-time updates, task management, and analytics to monitor lead progress.',
+                              'https://play.google.com/store/apps/details?id=com.paragon.anad.crm',
+                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
+
+                            projectContainer(
+                              Images.duckin,
+                              "GO DUCKIN",
+                                  () {},
+                              "Go Duckin is the ultimate platform for duck enthusiasts! Post and showcase your ducks, explore unique collections, and connect with a community that shares your passion. Whether you're a breeder, collector, or simply a fan, Go Duckin makes it easy to track, manage, and display your beloved ducks in one place.",
+                              'https://play.google.com/store/apps/details?id=com.paragon.goduckin',
+                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
+
+                            projectContainer(
+                              Images.ligo,
+                              "LIGO APP",
+                                  () {},
+                              "LIGO is your ultimate ride and delivery companion! Whether you're booking a ride, scheduling a parcel, or transporting cargo, LIGO makes it effortless. With real-time tracking, smooth ride management, and easy reviews, it’s the perfect solution for hassle-free transportation.",
+                              'https://play.google.com/store/apps/details?id=com.paragon.godu',
+                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
+
+                            projectContainer(
+                              Images.libas,
+                              "Libas",
+                                  () {},
+                              'Libas is an e-commerce application where preloved brands sell their products. The platform connects buyers with trusted sellers of second-hand fashion items, promoting sustainable shopping and offering premium branded goods at affordable prices.',
+                              'https://play.google.com/store/apps/details?id=com.libas.libas&hl=en',
+                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
+
+                            projectContainer(
+                              Images.oga,
+                              "OGA",
+                                  () {},
+                              'OGA is a comprehensive social media application with all the modern features—posts, messaging, likes, comments, and shares—all in one app.',
+                              'https://apps.apple.com/us/app/oga-i-on-good-authority/id6739505173',
+                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
+
+                            projectContainer(
+                              Images.alajeeConnect,
+                              "Alajee Connect",
+                                  () {},
+                              'Alajee Connect is an innovative eCommerce app that bridges the gap between service providers and customers for home services, personal care, and more.',
+                              'https://play.google.com/store/apps/details?id=com.alaje.alajeconnect',
+                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              AnimateOnVisible(
+                key: const Key('skills_visibility'),
+                child: Container(
+                  key: skillKey,
+                  width: width,
+                  height: isTablet ? 650 : null,
+                  color: Colors.black,
+                  child: Column(
+                    mainAxisAlignment: isTablet
+                        ? MainAxisAlignment.center
+                        : MainAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 30),
+                      Text(
+                        "My Skills",
+                        style: GoogleFonts.onest(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: backgroundColor,
+                        ),
                       ),
-                      SizedBox(
-                        height: mainP,
+                      const SizedBox(height: 30),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: isTablet ? 30 : 0),
+                        child: Wrap(
+                          runSpacing: 20,
+                          spacing: 20,
+                          children: [
+                            skillContainer(Images.flutter, "Flutter"),
+                            skillContainer(Images.dart, "Dart"),
+                            skillContainer(Images.firebase, "Firebase"),
+                            skillContainer(Images.sql, "MySQL"),
+                            skillContainer(Images.mongo, "MongoDB"),
+                            skillContainer(Images.java, "JavaScript"),
+                            skillContainer(Images.node, "Node.js"),
+                            skillContainer(Images.api, "Rest APIs"),
+                            skillContainer(Images.git, "Git"),
+                            skillContainer(Images.github, "GitHub"),
+                          ],
+                        ),
                       ),
-                      MyCustomTextField(
-                        // controller: nameController,
-                        textInputType: TextInputType.text,
-                        hintText: 'Write here something...',
-                        prefixIcon: Icons.person_2_outlined,
-                        maxLines: 8,
-                        borderColor: lightGrey,
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: CustomButton(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              text: "Send Message",
-                              width: isTablet ? width / 7 : width / 2,
-                              height: 50,
-                              onTap: () {},
-                              textColor: backgroundColor,
-                              backgroundColor: primaryColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
+                      const SizedBox(height: 30),
                     ],
                   ),
                 ),
               ),
-              Container(
-                width: width,
-                color: Colors.black.withOpacity(0.9),
-                child: Padding(
+              AnimateOnVisible(
+                key: const Key('education_visibility'),
+                child: Container(
+                  width: width,
+                  color: const Color(0xffe8edfe),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 35),
+                      Text(
+                        "Education",
+                        style: GoogleFonts.onest(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: darkColor,
+                        ),
+                      ),
+                      const SizedBox(height: 35),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Container(
+                          width: width,
+                          decoration: BoxDecoration(
+                            color: backgroundColor,
+                            borderRadius: BorderRadius.circular(mainP),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.03),
+                                spreadRadius: 2,
+                                blurRadius: 6,
+                                offset: const Offset(-1, 3),
+                                blurStyle: BlurStyle.normal,
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Container(
+                                  height: 50,
+                                  width: 50,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(100),
+                                    color: primaryColor.withOpacity(0.1),
+                                  ),
+                                  child: Center(
+                                    child: Image.asset(
+                                      Images.education,
+                                      height: 30,
+                                      width: 30,
+                                      color: primaryColor,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: mainP),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '2020-2024',
+                                        style: GoogleFonts.onest(
+                                          fontWeight: FontWeight.w600,
+                                          color: greyColor,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        'Bachelor\'s of Software Engineering',
+                                        style: GoogleFonts.onest(
+                                          fontWeight: FontWeight.w700,
+                                          color: darkColor,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        'Government College University Faisalabad (GCUF)',
+                                        style: GoogleFonts.onest(
+                                          fontWeight: FontWeight.w400,
+                                          color: darkColor,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 60),
+                    ],
+                  ),
+                ),
+              ),
+              AnimateOnVisible(
+                key: const Key('contact_visibility'),
+                child: Container(
+                  key: contactKey,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: isTablet ? 140 : 12),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 40),
+                        Center(
+                          child: Text(
+                            "Let's work together",
+                            style: GoogleFonts.onest(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                              color: darkColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        MyCustomTextField(
+                          textInputType: TextInputType.text,
+                          hintText: 'eg: john',
+                          prefixIcon: Icons.person_2_outlined,
+                          borderColor: lightGrey,
+                          controller: firstNameController,
+
+                        ),
+                        SizedBox(height: mainP),
+                        MyCustomTextField(
+                          textInputType: TextInputType.text,
+                          hintText: 'eg: doe',
+                          prefixIcon: Icons.person_2_outlined,
+                          borderColor: lightGrey,
+                          controller: lastNameController,
+
+                        ),
+                        SizedBox(height: mainP),
+                        MyCustomTextField(
+                          textInputType: TextInputType.text,
+                          hintText: 'eg: john@gmail.com',
+                          prefixIcon: Icons.email_outlined,
+                          borderColor: lightGrey,
+                          controller: emailController,
+
+                        ),
+                        SizedBox(height: mainP),
+                        Container(
+                          width: width,
+                          height: 53,
+                          decoration: BoxDecoration(
+                            color: backgroundColor,
+                            border: Border.all(color: lightGrey),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.only(left: p),
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                topRight: Radius.circular(12),
+                                bottomRight: Radius.circular(12),
+                              ),
+                              child: InternationalPhoneNumberInput(
+                                onInputChanged: (PhoneNumber number) {
+                                  setState(() => phoneNumber = number);
+                                },
+                                selectorConfig: const SelectorConfig(
+                                  selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                                  useBottomSheetSafeArea: true,
+                                ),
+                                spaceBetweenSelectorAndTextField: 0,
+                                ignoreBlank: false,
+                                autoValidateMode: AutovalidateMode.disabled,
+                                selectorTextStyle: const TextStyle(color: Colors.black),
+                                initialValue: number,
+                                textFieldController: mobileController,
+                                formatInput: true,
+                                keyboardType: const TextInputType.numberWithOptions(
+                                  signed: true,
+                                  decimal: true,
+                                ),
+                                inputBorder: InputBorder.none,
+                                inputDecoration: const InputDecoration(
+                                  hintText: "Phone Number",
+                                  border: InputBorder.none,
+                                  focusedBorder: OutlineInputBorder(borderSide: BorderSide.none),
+                                  enabledBorder: OutlineInputBorder(borderSide: BorderSide.none),
+                                  disabledBorder: UnderlineInputBorder(),
+                                ),
+                                onSaved: (PhoneNumber number) {},
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: mainP),
+                        MyCustomTextField(
+                          textInputType: TextInputType.text,
+                          hintText: 'Write here something...',
+                          prefixIcon: Icons.message_outlined,
+                          maxLines: 8,
+                          borderColor: lightGrey,
+                          controller: messageController,
+
+                        ),
+                        const SizedBox(height: 40),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: CustomButton(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                text: "Send Message",
+                                width: isTablet ? width / 7 : width / 2,
+                                height: 50,
+                                onTap: () {
+                                  // sendEmailWithEmailJS(
+                                  //   firstName: firstNameController.text,
+                                  //   lastName: lastNameController.text,
+                                  //   email: emailController.text,
+                                  //   phone: mobileController.text,
+                                  //   message: messageController.text,
+                                  // );
+                                  },
+                                textColor: backgroundColor,
+                                backgroundColor: primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 40),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              AnimateOnVisible(
+                key: const Key('contact_info_visibility'),
+                child: Container(
+                  width: width,
+                  color: Colors.black.withOpacity(0.9),
                   padding: EdgeInsets.symmetric(
-                      horizontal: isTablet ? 80 : 14, vertical: 20),
+                    horizontal: isTablet ? 80 : 14,
+                    vertical: 20,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         "Contact Information",
                         style: GoogleFonts.onest(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: backgroundColor),
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: backgroundColor,
+                        ),
                       ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.call, color: Colors.grey.shade700),
-                          SizedBox(
-                            width: mainP,
-                          ),
-                          Text(
-                            "+923197026592",
-                            style: GoogleFonts.onest(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade700),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: mainP,
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.email, color: Colors.grey.shade700),
-                          SizedBox(
-                            width: mainP,
-                          ),
-                          Text(
-                            "devusama818@gmail.com",
-                            style: GoogleFonts.onest(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade700),
-                          ),
-                        ],
-                      ),
+                      const SizedBox(height: 30),
+                      _infoRow(Icons.call, "+923197026592"),
+                      SizedBox(height: mainP),
+                      _infoRow(Icons.email, "devusama818@gmail.com"),
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
       ),
     );
   }
+}
+
+Widget _infoRow(IconData icon, String value) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(icon, color: Colors.grey.shade700, size: 20),
+      SizedBox(width: mainP),
+      Expanded(
+        child: Text(
+          value,
+          style: GoogleFonts.onest(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey.shade700,
+          ),
+        ),
+      ),
+    ],
+  );
 }
 
 class TypeWriterText extends StatefulWidget {

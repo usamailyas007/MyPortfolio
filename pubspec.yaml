@@ -46,10 +46,10 @@ dependencies:
   path_provider: ^2.0.14
   flutter_downloader: ^1.8.0
   open_file_mac: ^1.0.3
-
-
-
-
+  flutter_animate: ^4.3.0
+  visibility_detector: ^0.4.0
+  mailer: ^6.0.1
+  http: ^0.13.6
 
 dev_dependencies:
   flutter_test:

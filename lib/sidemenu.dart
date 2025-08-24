@@ -99,7 +99,7 @@ class _SideMenuState extends State<SideMenu> {
                             Row(
                               children: [
                                 Text(
-                                  "Muhammad Hamza",
+                                  "Usama Ilyas",
                                   textAlign: TextAlign.start,
                                   style: GoogleFonts.onest(
                                       fontWeight: FontWeight.w800,
@@ -109,7 +109,7 @@ class _SideMenuState extends State<SideMenu> {
                               ],
                             ),
                             Text(
-                              "mhamzau3291@gmail.com",
+                              "devusama818@gmail.com",
                               textAlign: TextAlign.start,
                               style: GoogleFonts.onest(
                                 fontSize: 14,
@@ -119,7 +119,7 @@ class _SideMenuState extends State<SideMenu> {
                             Row(
                               children: [
                                 Text(
-                                  "03167980123",
+                                  "03197026592",
                                   textAlign: TextAlign.start,
                                   style: GoogleFonts.onest(
                                     fontSize: 12,

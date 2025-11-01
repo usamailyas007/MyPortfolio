@@ -18,7 +18,9 @@ class Images {
   static const project = "assets/images/project.png";
   static const mataverse = "assets/images/mataverse.png";
   static const anad = "assets/images/anad.png";
+  static const ecg = "assets/images/ecg.png";
   static const sun = "assets/images/sun.png";
+  static const studio = "assets/images/studio.png";
   static const duckin = "assets/images/duckin.png";
   static const ligo = "assets/images/ligo.png";
   static const chat = "assets/images/chat.png";

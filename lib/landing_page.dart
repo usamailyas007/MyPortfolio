@@ -1356,11 +1356,47 @@ class _LandingPageState extends State<LandingPage> {
                           runSpacing: 20,
                           children: [
                             projectContainer(
+                              Images.libas,
+                              "LIBAS - (Ecommerce with 10K+ users)",
+                                  () {},
+                              'Libas is an e-commerce application where preloved brands sell their products. The platform connects buyers with trusted sellers of second-hand fashion items, promoting sustainable shopping and offering premium branded goods at affordable prices.',
+                              'https://play.google.com/store/apps/details?id=com.libas.libas&hl=en',
+                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
+                            projectContainer(
+                              Images.ecg,
+                              "ECG Practice (Quiz App with 5K+ users)",
+                                  () {},
+                              'Enhance your ECG interpretation skills with ECG Practice, the ultimate app for medical students and healthcare professionals.Explore real ECG cases, take interactive quizzes, and improve your clinical accuracy. Whether you’re studying for exams or refining daily practice, this app helps you confidently read and understand ECGs with ease.',
+                              'https://apps.apple.com/il/app/ecg-practice/id6740402133',
+                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
+                            projectContainer(
+                              Images.studio,
+                              "Studio 99 - Movies & TV",
+                                  () {},
+                              'Studio 99 is a premium video platform that bridges the gap between viewers and creators. Stream high-quality content in a sleek, Netflix-style interface. Upload and share your own videos to grow your personal brand or audience. Unlock exclusive features and tools with flexible subscription plans.',
+                              'https://apps.apple.com/au/app/studio-99/id6747902446',
+                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
+                            projectContainer(
+                              Images.oga,
+                              "OGA",
+                                  () {},
+                              'OGA is a comprehensive social media application with all the modern features—posts, messaging, likes, comments, and shares—all in one app.',
+                              'https://apps.apple.com/us/app/oga-i-on-good-authority/id6739505173',
+                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
+
+                            projectContainer(
                               Images.anad,
                               "ANAD CRM",
                                   () {},
                               'Anad CRM is a powerful app designed to help users effortlessly manage and track their leads. With intuitive features, it enables users to fetch leads, organize customer data, and streamline communication for better sales efficiency. The app offers real-time updates, task management, and analytics to monitor lead progress.',
                               'https://play.google.com/store/apps/details?id=com.paragon.anad.crm',
+                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
+                            projectContainer(
+                              Images.alajeeConnect,
+                              "Alajee Connect (1K+ users",
+                                  () {},
+                              'Alajee Connect is an innovative eCommerce app that bridges the gap between service providers and customers for home services, personal care, and more.',
+                              'https://play.google.com/store/apps/details?id=com.alaje.alajeconnect',
                             ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
 
                             projectContainer(
@@ -1379,30 +1415,7 @@ class _LandingPageState extends State<LandingPage> {
                               'https://play.google.com/store/apps/details?id=com.paragon.godu',
                             ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
 
-                            projectContainer(
-                              Images.libas,
-                              "Libas",
-                                  () {},
-                              'Libas is an e-commerce application where preloved brands sell their products. The platform connects buyers with trusted sellers of second-hand fashion items, promoting sustainable shopping and offering premium branded goods at affordable prices.',
-                              'https://play.google.com/store/apps/details?id=com.libas.libas&hl=en',
-                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
-
-                            projectContainer(
-                              Images.oga,
-                              "OGA",
-                                  () {},
-                              'OGA is a comprehensive social media application with all the modern features—posts, messaging, likes, comments, and shares—all in one app.',
-                              'https://apps.apple.com/us/app/oga-i-on-good-authority/id6739505173',
-                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
-
-                            projectContainer(
-                              Images.alajeeConnect,
-                              "Alajee Connect",
-                                  () {},
-                              'Alajee Connect is an innovative eCommerce app that bridges the gap between service providers and customers for home services, personal care, and more.',
-                              'https://play.google.com/store/apps/details?id=com.alaje.alajeconnect',
-                            ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.3),
-                          ],
+                           ],
                         ),
                       ],
                     ),
